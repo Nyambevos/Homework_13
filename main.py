@@ -1,7 +1,11 @@
+from dotenv import load_dotenv
+
 import uvicorn
 from fastapi import FastAPI
 
 from src.routes import contacts, auth
+
+load_dotenv()
 
 app = FastAPI()
 

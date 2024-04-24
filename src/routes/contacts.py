@@ -18,7 +18,7 @@ async def read_contacts(skip: int = 0,
                         db: Session = Depends(get_db),
                         current_user: User = Depends(auth_service.get_current_user)):
     contacts = await repository_contacts.get_contacts(
-        skip, limit, db)
+        skip, limit, current_user, db)
     return contacts
 
 @router.get("/search", response_model=List[ContactResponse])

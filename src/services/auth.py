@@ -12,17 +12,18 @@ from sqlalchemy.orm import Session
 
 from src.database.db import get_db
 from src.repository import users as repository_users
-
-R_HOST = os.getenv('REDIS_HOST')
-R_PORT = os.getenv('REDIS_PORT')
+from src.conf.config import settings
 
 class Auth:
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    SECRET_KEY = "secret_key"
-    ALGORITHM = "HS256"
+    SECRET_KEY = settings.secret_key
+    ALGORITHM = settings.algorithm
+    R_HOST = os.getenv('REDIS_HOST')
+    R_PORT = os.getenv('REDIS_PORT')
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
-    r = redis.Redis(host=R_HOST, port=R_PORT, db=0)
+    r = redis.Redis(host=settings.redis_host,
+                    port=settings.redis_port, db=0)
 
     def verify_password(self, plain_password, hashed_password):
         return self.pwd_context.verify(plain_password, hashed_password)

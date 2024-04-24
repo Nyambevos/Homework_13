@@ -3,13 +3,10 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-DB_USERNAME = os.getenv('DATABASE_USERNAME')
-DB_PASSWORD = os.getenv('DATABASE_PASSWORD')
-DB_HOST = os.getenv('DATABASE_HOST')
-DB_PORT = os.getenv('DATABASE_PORT')
-DB_NAME = os.getenv('DATABASE_NAME')
+from src.conf.config import settings
 
-SQLALCHEMY_DATABASE_URL = f"postgresql+psycopg2://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+
+SQLALCHEMY_DATABASE_URL = settings.sqlalchemy_database_url
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

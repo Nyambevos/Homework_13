@@ -21,6 +21,7 @@ python-multipart = "^0.0.9"
 fastapi-mail = "^1.4.1"
 redis = "^5.0.4"
 bcrypt = "^4.1.2"
+pydantic-settings = "^2.2.1"
 
 
 [build-system]

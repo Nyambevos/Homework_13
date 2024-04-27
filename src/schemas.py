@@ -12,7 +12,7 @@ class ContactResponse(ContactModel):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class UserModel(BaseModel):
@@ -29,7 +29,7 @@ class UserDb(BaseModel):
     avatar: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class UserResponse(BaseModel):

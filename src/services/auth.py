@@ -1,8 +1,7 @@
-import os
 import pickle
 from typing import Optional
 
-import redis
+import redis.asyncio as redis
 from jose import JWTError, jwt
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
@@ -18,8 +17,6 @@ class Auth:
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     SECRET_KEY = settings.secret_key
     ALGORITHM = settings.algorithm
-    R_HOST = os.getenv('REDIS_HOST')
-    R_PORT = os.getenv('REDIS_PORT')
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
     r = redis.Redis(host=settings.redis_host,
@@ -81,13 +78,13 @@ class Auth:
                 raise credentials_exception
         except JWTError as e:
             raise credentials_exception
-        user = self.r.get(f"user:{email}")
+        user = await self.r.get(f"user:{email}")
         if user is None:
             user = await repository_users.get_user_by_email(email, db)
             if user is None:
                 raise 
-            self.r.set(f"user:{email}", pickle.dumps(user))
-            self.r.expire(f"user:{email}", 900)
+            await self.r.set(f"user:{email}", pickle.dumps(user))
+            await self.r.expire(f"user:{email}", 900)
         else:
             user = pickle.loads(user)
         return user

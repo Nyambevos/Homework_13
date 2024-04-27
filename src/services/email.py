@@ -8,7 +8,6 @@ from pydantic import EmailStr
 from src.services.auth import auth_service
 from src.conf.config import settings
 
-print(os.getenv('MAIL_FROM_NAME'))
 conf = ConnectionConfig(
     MAIL_USERNAME=settings.mail_username,
     MAIL_PASSWORD=settings.mail_password,

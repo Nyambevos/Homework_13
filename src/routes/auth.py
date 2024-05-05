@@ -16,6 +16,20 @@ security = HTTPBearer()
 
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def signup(body: UserModel, background_tasks: BackgroundTasks, request: Request, db: Session = Depends(get_db)):
+    """
+    The signup function creates a new user in the database.
+        It takes a UserModel object as input, which contains the username and email of the new user.
+        The function then checks if an account with that email already exists, and if so raises an exception.
+        If not, it hashes the password using auth_service's get_password_hash() function (which uses Argon2), 
+        then creates a new user in our database using repository_users' create_user() function. 
+    
+    :param body: UserModel: Get the data from the request body
+    :param background_tasks: BackgroundTasks: Add a task to the background tasks queue
+    :param request: Request: Get the base_url of the server
+    :param db: Session: Get the database session
+    :return: A dictionary with the user and a message
+    :doc-author: Trelent
+    """
     exist_user = await repository_users.get_user_by_email(body.email, db)
     if exist_user:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Account already exists")
@@ -27,6 +41,15 @@ async def signup(body: UserModel, background_tasks: BackgroundTasks, request: Re
 
 @router.post("/login", response_model=TokenModel)
 async def login(body: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    """
+    The login function is used to authenticate a user.
+    It takes an email and password as input, and returns an access token if the credentials are valid.
+    
+    :param body: OAuth2PasswordRequestForm: Validate the request body
+    :param db: Session: Get the database session
+    :return: A tuple of access_token and refresh_token
+    :doc-author: Trelent
+    """
     user = await repository_users.get_user_by_email(body.username, db)
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email")
@@ -43,6 +66,16 @@ async def login(body: OAuth2PasswordRequestForm = Depends(), db: Session = Depen
 
 @router.get('/refresh_token', response_model=TokenModel)
 async def refresh_token(credentials: HTTPAuthorizationCredentials = Security(security), db: Session = Depends(get_db)):
+    """
+    The refresh_token function is used to refresh the access token.
+        The function takes in a refresh token and returns an access token.
+        If the user's refresh_token does not match, then it will return an error.
+    
+    :param credentials: HTTPAuthorizationCredentials: Get the token from the request header
+    :param db: Session: Get the database session
+    :return: A dictionary with the new access token, refresh token and bearer type
+    :doc-author: Trelent
+    """
     token = credentials.credentials
     email = await auth_service.decode_refresh_token(token)
     user = await repository_users.get_user_by_email(email, db)
@@ -57,6 +90,19 @@ async def refresh_token(credentials: HTTPAuthorizationCredentials = Security(sec
 
 @router.get('/confirmed_email/{token}')
 async def confirmed_email(token: str, db: Session = Depends(get_db)):
+    """
+    The confirmed_email function takes a token and db as parameters.
+    It then gets the email from the token, and gets the user by that email.
+    If there is no user with that email, it raises an HTTPException with status code 400 (bad request) and detail &quot;Verification error&quot;.
+    If there is a user but their confirmed field is True, it returns {&quot;message&quot;: &quot;Your email is already confirmed&quot;}.  Otherwise...
+    it confirms their account by calling repository_users' confirmed_email function on their email address using db as its database parameter.  
+    Finally, it returns {&quot;message&quot;: &quot;Email confirmed&quot;}.
+    
+    :param token: str: Get the token from the url
+    :param db: Session: Get the database session
+    :return: A message that the email is already confirmed or a message that the email has been confirmed
+    :doc-author: Trelent
+    """
     email = await auth_service.get_email_from_token(token)
     user = await repository_users.get_user_by_email(email, db)
     if user is None:
@@ -69,6 +115,18 @@ async def confirmed_email(token: str, db: Session = Depends(get_db)):
 @router.post('/request_email')
 async def request_email(body: RequestEmail, background_tasks: BackgroundTasks, request: Request,
                         db: Session = Depends(get_db)):
+    """
+    The request_email function is used to send an email to the user with a link that they can click on
+    to confirm their email address. The function takes in a RequestEmail object, which contains the user's
+    email address. It then checks if there is already a confirmed account associated with that email address, and if so, returns an error message saying as much. If not, it sends an email containing a confirmation link.
+    
+    :param body: RequestEmail: Get the email from the request body
+    :param background_tasks: BackgroundTasks: Add a task to the background tasks queue
+    :param request: Request: Get the base_url of the application
+    :param db: Session: Get the database session
+    :return: A message to the user
+    :doc-author: Trelent
+    """
     user = await repository_users.get_user_by_email(body.email, db)
 
     if user.confirmed:

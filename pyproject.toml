@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "homework-13-1"
+name = "rest_app"
 version = "0.1.0"
 description = ""
 authors = ["Nyambevos <ruslan.bilokoniuk@gmail.com>"]
@@ -25,6 +25,9 @@ pydantic-settings = "^2.2.1"
 fastapi-limiter = "^0.1.6"
 cloudinary = "^1.40.0"
 
+
+[tool.poetry.group.dev.dependencies]
+sphinx = "^7.3.7"
 
 [build-system]
 requires = ["poetry-core"]

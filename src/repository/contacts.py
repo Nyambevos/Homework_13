@@ -1,7 +1,7 @@
 from typing import List
 
 from fastapi import HTTPException
-from sqlalchemy import and_
+from sqlalchemy import and_, extract
 from sqlalchemy.orm import Session
 
 from datetime import date, timedelta
@@ -161,7 +161,23 @@ async def get_upcoming_birthdays(skip: int,
     today = date.today()
     seven_days_later = today + timedelta(days=7)
 
-    contacts = db.query(Contact).filter(
-        and_(Contact.birthday.between(today, seven_days_later), Contact.user_id == user.id)
-    ).offset(skip).limit(limit).all()
-    return contacts
+    # contacts = db.query(Contact).filter(
+    #     and_(Contact.birthday.between(today, seven_days_later), Contact.user_id == user.id)
+    # ).offset(skip).limit(limit).all()
+
+    results = db.query(Contact).filter(
+        and_(
+            and_(
+                extract('month', Contact.birthday) == today.month,
+                extract('day', Contact.birthday) >= today.day),
+            and_(
+                extract('month', Contact.birthday) == seven_days_later.month,
+                extract('day', Contact.birthday) <= seven_days_later.day)
+            )
+        ).all()
+
+    return results
+
+
+
+

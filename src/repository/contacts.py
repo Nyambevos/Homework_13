@@ -81,10 +81,10 @@ async def update_contact(contact_id: int, body: ContactModel, user: User, db: Se
     """
     contact = db.query(Contact).filter(and_(Contact.id == contact_id, Contact.user_id == user.id)).first()
     if contact:
-        contact.firstname = body.firstname,
-        contact.lastname = body.lastname,
-        contact.email = body.email,
-        contact.phone = body.phone,
+        contact.firstname = body.firstname
+        contact.lastname = body.lastname
+        contact.email = body.email
+        contact.phone = body.phone
         contact.birthday = body.birthday
         db.commit()
     return contact
